@@ -18,9 +18,9 @@ const Topbar = async () => {
 
     const hasNotifications = true;
     const numNotifications = 3;
-    const userId = 2;
     const userName = session?.user?.name;
     let profilePicture = session?.user?.profilePic;
+    const userId = session?.user?.id
 
     if (profilePicture === null || profilePicture === undefined) {
         profilePicture = "/assets/users/profile.jpg";

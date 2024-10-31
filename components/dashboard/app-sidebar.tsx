@@ -30,7 +30,7 @@ const items = [
   },
   {
     title: "Apps & Integrations",
-    url: "#",
+    url: "apps",
     icon: "apps",
   },
   {

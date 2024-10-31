@@ -1,6 +1,9 @@
 import React from 'react'
 import { Switch } from "@/components/ui/switch"
 import { Button } from '@components/ui/button';
+import { Toaster } from "@components/ui/toaster"
+import { useToast } from "@hooks/use-toast"
+
 
 type Provider = {
   provider_id: number;
@@ -19,6 +22,19 @@ type Process = {
 
 const page = async () => {
 
+  const dataPull = async(providerId:string)=>{
+    const response = await fetch(`${process.env.NEXT_BASE_URL}/api/appProviders/dataPull/${providerId}`, {
+      method: 'GET',
+      cache: 'no-cache',
+    })
+  
+    if (!response.ok) {
+      throw new Error('Failed to fetch process list');
+    }
+  
+    const providers: Provider[] = await response.json();
+  }
+
   const provider_id = 1;
 
   const response = await fetch(`${process.env.NEXT_BASE_URL}/api/appProviders/listProvider/${provider_id}`, {
@@ -36,7 +52,15 @@ const page = async () => {
     <main className='p-8'>
       <div className="flex fleox-row w-full justify-between pb-5">
         <span className=' text-2xl'>Connect Apps</span>
-        <Button variant="outline">Launch Data Pull</Button>
+        <form
+          action={async () => {
+            "use server"
+            await signOut()
+          }}
+        >
+          <Button variant="outline">Launch Data Pull</Button>
+        </form>
+        
       </div>
       <div className='flex flex-col gap-5'>
         {providers.map((provider) =>

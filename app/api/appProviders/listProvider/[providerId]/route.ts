@@ -1,5 +1,3 @@
-// app/api/providers/route.ts
-
 import { NextResponse } from 'next/server';
 import connection from '@config/db';
 

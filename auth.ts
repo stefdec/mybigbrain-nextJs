@@ -20,10 +20,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           //Create a new user
         }
 
-        console.log(additionalData)
-
         return {
-          id: additionalData.id ?? profile.sub, // Google's user ID
+          id: profile.sub, // Google's user ID
+          userId: additionalData.id,
           name: additionalData.first_name ?? profile.name,
           email: profile.email,
           picture: additionalData.profile_pic ?? profile.picture,
@@ -55,6 +54,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           //return the users info
           user = {
             id: userInfo.id,
+            userId: userInfo.id,
             name: userInfo.first_name,
             email: userInfo.email,
             picture: userInfo.profile_pic,
@@ -81,19 +81,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  pages
+  : {
+    signIn: '/login',
+  },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user } : { token: any, user: any }) {
       if (user) {
         token.id = user.id;
+        token.userId = user.userId
         token.profilePic = user.picture || token.picture
         token.lastName = user.lastName || token.lastName
         token.userBio = user.bio || token.bio
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token } : { session: any, token: any }) {
       if (token) {
         session.user.id = token.id
+        session.user.userId = token.userId
         session.user.profilePic = token.profilePic
         session.user.lastName = token.lastName
         session.user.userBio = token.userBio

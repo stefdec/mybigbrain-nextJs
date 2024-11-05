@@ -1,9 +1,11 @@
+
 import React from 'react'
 import { Switch } from "@/components/ui/switch"
 import { Button } from '@components/ui/button';
 import { Toaster } from "@components/ui/toaster"
 import { useToast } from "@hooks/use-toast"
-
+import { getProcesses, pullData } from "@lib/actions"
+import { redirect } from 'next/navigation'
 
 type Provider = {
   provider_id: number;
@@ -17,31 +19,15 @@ type Process = {
   process_name: string;
   process_description: string;
   process_logo: string;
+  process_scope: string;
   is_user_linked: number;
 };
 
 const page = async () => {
-
-  const dataPull = async(providerId:string)=>{
-    const response = await fetch(`${process.env.NEXT_BASE_URL}/api/appProviders/dataPull/${providerId}`, {
-      method: 'GET',
-      cache: 'no-cache',
-    })
-  
-    if (!response.ok) {
-      throw new Error('Failed to fetch process list');
-    }
-  
-    const providers: Provider[] = await response.json();
-  }
-
   const provider_id = 1;
 
-  const response = await fetch(`${process.env.NEXT_BASE_URL}/api/appProviders/listProvider/${provider_id}`, {
-    method: 'GET',
-    cache: 'no-cache',
-  })
-
+  const response = await getProcesses(provider_id.toString())
+  
   if (!response.ok) {
     throw new Error('Failed to fetch process list');
   }
@@ -50,48 +36,50 @@ const page = async () => {
 
   return (
     <main className='p-8'>
-      <div className="flex fleox-row w-full justify-between pb-5">
-        <span className=' text-2xl'>Connect Apps</span>
-        <form
-          action={async () => {
+      <form action={async (formData: FormData) => {
             "use server"
-            await signOut()
+            const url = await pullData(formData)
+            redirect(url)
           }}
         >
-          <Button variant="outline">Launch Data Pull</Button>
-        </form>
-        
-      </div>
-      <div className='flex flex-col gap-5'>
-        {providers.map((provider) =>
-            provider.processes.map((process) => (
-              <div className='flex flex-1 flex-row justify-between items-center gap-5'>
-                <div className='flex flex-0'>
-                  <img
-                    src={`/assets/icons/apis/${process.process_logo}.svg`}
-                    alt={process.process_name}
-                    className="width-[56px] height-[56px]"
-                  />
-                </div>
-                
-                <div className='flex flex-col flex-1'>
-                  <div className='font-bold'>{process.process_name}</div>
-                  <div className='text-sm'>{process.process_description}</div>
-                  
-                  
-                </div>
-                <div className='flex'>
-                  <Switch
-                      id={`process-${process.process_id}`}
-                      checked={process.is_user_linked == 1 }
-                     
+        <input type="hidden" name='providerId' value={provider_id} />
+        <div className="flex fleox-row w-full justify-between pb-5">
+          <span className=' text-2xl'>Connect Apps</span>
+
+            <Button variant="outline" type='submit'>Launch Data Pull</Button>
+          
+        </div>
+        <div className='flex flex-col gap-5'>
+          {providers.map((provider) =>
+              provider.processes.map((process) => (
+                <div className='flex flex-1 flex-row justify-between items-center gap-5'>
+                  <div className='flex flex-0'>
+                    <img
+                      src={`/assets/icons/apis/${process.process_logo}.svg`}
+                      alt={process.process_name}
+                      className="width-[56px] height-[56px]"
                     />
+                  </div>
+                  
+                  <div className='flex flex-col flex-1'>
+                    <div className='font-bold'>{process.process_name}</div>
+                    <div className='text-sm'>{process.process_description}</div>
+                    
+                    
+                  </div>
+                  <div className='flex'>
+                    <Switch
+                        id={`process-${process.process_id}`}
+                        name='process'
+                        value={process.process_scope}
+                      />
+                  </div>
                 </div>
-              </div>
-            
-            ))
-          )}
-      </div>
+              
+              ))
+            )}
+        </div>
+      </form>
     </main>
   )
 }

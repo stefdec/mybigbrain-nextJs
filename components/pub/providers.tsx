@@ -1,16 +1,10 @@
 import { signIn } from "@auth"
-import { Input } from "@components/ui/input"
-import { Label } from "@components/ui/label"
-import { Button } from "@components/ui/button"
 import Image from "next/image"
 
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle,
 } from "@components/ui/card"
  
 export function Providers() {

@@ -2,10 +2,10 @@
 import React from 'react'
 import { Switch } from "@/components/ui/switch"
 import { Button } from '@components/ui/button';
-import { Toaster } from "@components/ui/toaster"
-import { useToast } from "@hooks/use-toast"
-import { getProcesses, pullData } from "@lib/actions"
+import { getProcesses, pullData } from "@lib/actions/api-processes"
+import {getTokens} from "@lib/actions/get-tokens"
 import { redirect } from 'next/navigation'
+import Image from 'next/image';
 
 type Provider = {
   provider_id: number;
@@ -36,6 +36,14 @@ const page = async () => {
 
   return (
     <main className='p-8'>
+      <form action={async () => {
+            "use server"
+            await getTokens()
+          }
+        }
+      >
+        <Button type='submit'>click</Button>
+      </form>
       <form action={async (formData: FormData) => {
             "use server"
             const url = await pullData(formData)
@@ -52,9 +60,11 @@ const page = async () => {
         <div className='flex flex-col gap-5'>
           {providers.map((provider) =>
               provider.processes.map((process) => (
-                <div className='flex flex-1 flex-row justify-between items-center gap-5'>
+                <div className='flex flex-1 flex-row justify-between items-center gap-5' key={process.process_id}>
                   <div className='flex flex-0'>
-                    <img
+                    <Image
+                      width={56}
+                      height={56}
                       src={`/assets/icons/apis/${process.process_logo}.svg`}
                       alt={process.process_name}
                       className="width-[56px] height-[56px]"

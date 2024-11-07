@@ -1,5 +1,14 @@
 import connection from '@config/db';
+import { ResultSetHeader } from 'mysql2/promise';
+import { RowDataPacket } from 'mysql2/promise';
 import qs from 'qs';
+
+type Process = {
+    id: number;
+    name: string;
+    api_url: string;
+};
+
 
 async function _getGoogleUserInfo(accessToken:string) {
     try {
@@ -13,8 +22,12 @@ async function _getGoogleUserInfo(accessToken:string) {
         const { sub, email } = await response.json();
 
         return { userId: sub, email };
-    } catch (error: any) {
-        console.error('Error fetching user profile:', error.response ? error.response.data : error.message);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error('Error fetching user profile:', error.message);
+        } else {
+            console.error('Error fetching user profile:', error);
+        }
         throw error;
     }
 }
@@ -31,34 +44,29 @@ export const saveAndPullGoogle = async (userId:string, providerId:string, scopes
     // Set a concurrency limit for the pull
     const limit = pLimit(1);
 
-    //Delete the processes for the user for this provider
-    const query_delete = `
-        DELETE user_process
-        FROM user_process
-        JOIN process ON user_process.process_id = process.id
-        WHERE user_process.user_id = ? AND process.provider_id = ?;
-        `;
+    // const queryDelete = `
+    //     DELETE user_process
+    //     FROM user_process
+    //     INNER JOIN process ON user_process.process_id = process.id
+    //     WHERE user_process.user_id = ? AND process.provider_id = ?;
+    // `;
 
-    try {
-        const [row]: [any[], any] = await conn.query(query_delete, [userId, providerId]);
-        //const [rows] = await db.execute(query_delete, [userId, providerId]);
-        //console.log(`${rows.affectedRows} row(s) deleted.`);
-    } catch (error) {
-        console.error('Error deleting processes for the user:', error);
-    }
+    // try {
+    //     const [result] = await conn.query<ResultSetHeader>(queryDelete, [userId, providerId]);
+    //     console.log(`${result.affectedRows} row(s) deleted.`);
+    // } catch (error) {
+    //     console.error('Error occurred while deleting user processes for the specified provider:', error);
+    // }
 
     try {
         const tasks = scopes.map(scope => limit(async () => {
             if (scope !== "https://www.googleapis.com/auth/userinfo.email") {
                 try {
                     let query = `SELECT id, name, api_url FROM process WHERE scope = ?`;
-                    const [rows] : [any[], any] = await connection.query(query, [scope]);
+                    const [rows] = await connection.query<Process[] & RowDataPacket[]>(query, [scope]);
 
-                    const { id, name, api_url } = rows[0];
+                    const { id, api_url } = rows[0];
                     const processId = id;
-                    const processName = name;
-
-
 
                     query = `
                         INSERT INTO user_process (user_id, process_id, registered)
@@ -66,7 +74,12 @@ export const saveAndPullGoogle = async (userId:string, providerId:string, scopes
                         ON DUPLICATE KEY UPDATE
                             registered = 1
                         `;
-                    await conn.query(query, [userId, processId, 1]);
+                        try {
+                            const [result] = await conn.query<ResultSetHeader>(query, [userId, processId, 1]);
+                            console.log(`${result.affectedRows} row(s) affected.`);
+                        } catch (error) {
+                            console.error('Error during insert operation:', error);
+                        }
 
                     const inputData = {
                         google_user_access_token: accessToken,
@@ -80,7 +93,7 @@ export const saveAndPullGoogle = async (userId:string, providerId:string, scopes
 
                     const formData = qs.stringify(inputData);
 
-                    const response = await fetch(`${pythonApiUrl}${api_url}`, {
+                    await fetch(`${pythonApiUrl}${api_url}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',

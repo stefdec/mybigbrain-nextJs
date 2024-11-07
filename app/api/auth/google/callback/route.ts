@@ -1,7 +1,7 @@
 import {NextRequest, NextResponse } from 'next/server';
-import { encryptToken } from '@lib/token_mgmt';
-import { saveTokens } from '@lib/actions';
-import { saveAndPullGoogle } from '@lib/google/google_actions';
+import { encryptToken } from '@lib/actions/token_mgmt';
+import { saveTokens } from '@lib/actions/api-processes';
+import { saveAndPullGoogle } from '@lib/actions/google_actions';
 
 import { google } from 'googleapis';
 

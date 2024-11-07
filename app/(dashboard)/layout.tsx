@@ -1,11 +1,10 @@
 import "../globals.css";
 import type { Metadata } from "next";
 import Topbar from "@components/dashboard/Topbar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar" 
 import {auth} from "@/auth";
 import {SessionProvider} from "next-auth/react";
-import { signOut } from "@auth"
 import {Inter} from "next/font/google"
 
 const inter = Inter({ subsets: ["latin"] });

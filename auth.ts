@@ -3,6 +3,7 @@ import { ZodError } from "zod"
 import Credentials from "next-auth/providers/credentials"
 import { signInSchema } from "@lib/definitions"
 import Google from "next-auth/providers/google"
+import { getUserProfile, verifyUser, registerUserFromProvider } from "@lib/actions/users"
 
  
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -11,16 +12,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       profile: async (profile) => {
+        let user = null;
         //fetch data from /api/users with the email
-        const response = await fetch(`${process.env.NEXT_BASE_URL}/api/users/profile/${profile.email}`)
+        const response = await getUserProfile(profile.email)
         const additionalData = await response.json()
 
-        if(!additionalData){
-          //The user does not exist in the database
-          //Create a new user
-        }
-
-        return {
+        user = {
           id: profile.sub, // Google's user ID
           userId: additionalData.id,
           name: additionalData.first_name ?? profile.name,
@@ -29,6 +26,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           lastName: additionalData.last_name ?? null,
           bio: additionalData.bio ?? null,
         }
+
+        if(!additionalData){
+          //The user does not exist in the database
+          //Create a new user
+          const response = await registerUserFromProvider(user)
+          const newUser = await response.json()
+
+          user.id = newUser.id
+        }
+
+        return user
       },
     }),
     Credentials({
@@ -39,45 +47,45 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: {},
       },
       authorize: async (credentials) => {
-        let user = null
+        let user = null;
         try {
-          
- 
-          const { email, password } = await signInSchema.parseAsync(credentials)
- 
- 
-          // logic to verify if the user exists
-          const response = await fetch(`${process.env.NEXT_BASE_URL}/api/users/authUser/${email}/${password}`)
-          const userInfo = await response.json()
-
-          console.log(userInfo)
-          //return the users info
-          user = {
-            id: userInfo.id,
-            userId: userInfo.id,
-            name: userInfo.first_name,
-            email: userInfo.email,
-            picture: userInfo.profile_pic,
-            lastName: userInfo.last_name,
-            bio: userInfo.bio,
+          console.log("PRINT credentials", credentials);
+      
+          const { email, password } = await signInSchema.parseAsync(credentials);
+      
+          // Fetch user information from your API
+          const response = await verifyUser(email, password);
+          if (!response.ok) {
+            console.error("Failed to fetch user data: ", response.statusText);
+            return null;
           }
-
-          user.id = user.id
-
- 
-          if (!user) {
-            throw new Error("User not found.")
+      
+          const userInfo = await response.json();
+          console.log("userInfo", userInfo);
+      
+          if (userInfo) {
+            user = {
+              id: userInfo.id,
+              userId: userInfo.id,
+              name: userInfo.first_name,
+              email: userInfo.email,
+              picture: userInfo.profile_pic,
+              lastName: userInfo.last_name,
+              bio: userInfo.bio,
+            };
+          } else {
+            throw new Error("User not found.");
           }
- 
-          // return JSON object with the user data
-          return user
+      
+          return user;
         } catch (error) {
           if (error instanceof ZodError) {
-            // Return `null` to indicate that the credentials are invalid
-            return null
+            console.error("Zod validation error:", error.errors);
+            return null; // Credentials are invalid
           }
+          console.error("Unexpected error during authorization:", error);
+          return null;
         }
-        return user
       },
     }),
   ],

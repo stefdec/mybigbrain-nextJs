@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, Home, Inbox, Search, Settings, MessageCircleMore, LayoutGrid } from "lucide-react"
 import { usePathname } from 'next/navigation';
 
 
@@ -13,7 +12,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -83,10 +81,10 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title} className={`mb-5 rounded-lg p-[1px] hover:bg-gradient-to-r from-[#6BD9FB] via-[#6391FF] to-[#7D50FF] ${isActive(`/${item.title.toLowerCase()}`) ? 'bg-gradient-to-r from-[#6BD9FB] via-[#6391FF] to-[#7D50FF]' : ''}`}>
                   <SidebarMenuButton asChild className={isActive(`/${item.title.toLowerCase()}`)? `bg-white`: ''}>
-                    <a href={item.url}> 
+                    <Link href={item.url}> 
                       <Image src={`/assets/icons/${item.icon}.svg`} alt='' width={22} height={22} />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -100,10 +98,10 @@ export function AppSidebar() {
             <SidebarMenu>
                 <SidebarMenuItem className='mb-5 rounded-lg p-[1px] hover:bg-gradient-to-r from-[#6BD9FB] via-[#6391FF] to-[#7D50FF]'>
                     <SidebarMenuButton asChild>
-                    <a href='/'> 
+                    <Link href='/'> 
                         <Image src={`/assets/icons/info.svg`} alt='' width={22} height={22} />
                         <span>Help & Information</span>
-                    </a>
+                    </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu> 

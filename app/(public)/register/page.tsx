@@ -10,7 +10,6 @@ const page = async() => {
   return (
     <main className='flex flex-col items-center justify-items-center p-24 w-screen'>
       <RegisterForm />
-      <Providers />
     </main>
   )
 }

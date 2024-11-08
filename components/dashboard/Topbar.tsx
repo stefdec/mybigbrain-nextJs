@@ -1,6 +1,8 @@
 
 import { auth } from '@auth'
 import Image from 'next/image'
+import { signOut } from 'next-auth/react'
+import {Button} from '@components/ui/button'
 import Link from 'next/link';
 import {
     NavigationMenu,
@@ -52,17 +54,15 @@ const Topbar = async () => {
                     <ul className="grid gap-3 p-4 md:w-[100px] lg:w-[150px] lg:grid-cols-[.75fr_1fr]">
                     <li className="row-span-3">
                         <NavigationMenuLink asChild>
-                        <Link href="/" 
-                            className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md">
-                        
-                            <div className="mb-2 mt-4 text-lg font-medium">
-                            shadcn/ui
-                            </div>
-                            <p className="text-sm leading-tight text-muted-foreground">
-                            Beautifully designed components built with Radix UI and
-                            Tailwind CSS.
-                            </p>
-                        </Link>
+                        <form
+                        action={async () => {
+                            "use server"
+                            await signOut()
+                        }}
+                        >
+                        <Button type="submit">Sign out</Button>
+                        </form>
+  
                         </NavigationMenuLink>
                     </li>
                     

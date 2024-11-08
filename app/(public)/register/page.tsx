@@ -1,11 +1,11 @@
 import React from 'react'
-import {RegisterForm} from '@components/pub/signup-form'
+import {RegisterForm} from '@components/auth/register-form'
 import {Providers} from '@components/pub/providers'
 
 
 
 
-const page = async() => {
+const RegsiterPage = async() => {
 
   return (
     <main className='flex flex-col items-center justify-items-center p-24 w-screen'>
@@ -14,4 +14,4 @@ const page = async() => {
   )
 }
 
-export default page
+export default RegsiterPage

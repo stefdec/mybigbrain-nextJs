@@ -3,7 +3,8 @@ import { ZodError } from "zod"
 import Credentials from "next-auth/providers/credentials"
 import { signInSchema } from "@lib/definitions"
 import Google from "next-auth/providers/google"
-import { getUserProfile, verifyUser, registerUserFromProvider } from "@lib/actions/users"
+import { getUserProfile, verifyUser} from "@lib/actions/users"
+import { registerUserFromProvider } from "@lib/actions/auth/register"
 
  
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -31,7 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           //The user does not exist in the database
           //Create a new user
           const response = await registerUserFromProvider(user)
-          const newUser = await response.json()
+          const newUser = response ? await response.json() : null;
 
           user.id = newUser.id
         }

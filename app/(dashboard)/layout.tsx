@@ -32,7 +32,13 @@ export default async function Layout({ children } : Readonly<{ children: React.R
             </div>
             <div className="flex flex-col w-full min-h-screen bg-slate-100">
                 <div className="top-bar flex-0">
-                    <Topbar />
+                    <Topbar 
+                    numNotifications={1}
+                    hasNotifications={true}
+                    userName={session?.user?.name ?? "Guest"}
+                    profilePicture={session?.user?.image ?? "/assets/users/profile.png"}
+                    userId={session?.user?.id ?? '0'}
+                    />
                 </div>
                 <div className="flex flex-1  px-10 pb-10">
                     <div className="bg-white rounded-xl flex-1">{children}</div>

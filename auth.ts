@@ -72,7 +72,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               userId: userInfo.id,
               name: userInfo.first_name,
               email: userInfo.email,
-              picture: userInfo.profile_pic ?? `${process.env.NEXT_BASE_URL}/assets/users/profile.png`,
+              picture: userInfo.profile_pic ?? null,
               lastName: userInfo.last_name,
               bio: userInfo.bio,
             };

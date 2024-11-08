@@ -1,9 +1,7 @@
-
-import { auth } from '@auth'
+"use client"
 import Image from 'next/image'
 import { signOut } from 'next-auth/react'
-import {Button} from '@components/ui/button'
-import Link from 'next/link';
+import { Button } from '@/components/ui/button'
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -13,23 +11,19 @@ import {
     NavigationMenuTrigger,
   } from "@/components/ui/navigation-menu"
 
+  interface TopbarProps {
+    numNotifications: number | 0;
+    hasNotifications: boolean | false;
+    userName: string;
+    profilePicture: string;
+    userId: string;
+}
 
-const Topbar = async () => {
-    const session = await auth()
-
-    const hasNotifications = true;
-    const numNotifications = 3;
-    const userName = session?.user?.name;
-    let profilePicture = session?.user?.profilePic as string | undefined;
-    const userId = session?.user?.id
-
-    if (profilePicture === null || profilePicture === undefined) {
-        profilePicture = "/assets/users/profile.jpg";
-    } 
+const Topbar = ({ numNotifications, hasNotifications, userName, profilePicture, userId }: TopbarProps) => {
     
-    if (!profilePicture.startsWith("http")) {
-        profilePicture = `/assets/users/${userId}/profile.png`;
-    }
+    if (profilePicture !== "/assets/users/profile.png") {
+        profilePicture = `/assets/users/${userId}/profile.jpg`;
+    } 
         
 
   return (
@@ -54,14 +48,9 @@ const Topbar = async () => {
                     <ul className="grid gap-3 p-4 md:w-[100px] lg:w-[150px] lg:grid-cols-[.75fr_1fr]">
                     <li className="row-span-3">
                         <NavigationMenuLink asChild>
-                        <form
-                        action={async () => {
-                            "use server"
-                            await signOut()
-                        }}
-                        >
-                        <Button type="submit">Sign out</Button>
-                        </form>
+                       
+                
+                        <Button onClick={() => signOut({ redirectTo: "/" })}>Sign Out</Button>
   
                         </NavigationMenuLink>
                     </li>

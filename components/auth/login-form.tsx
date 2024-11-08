@@ -19,7 +19,7 @@ import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
 
 import { CardWrapper } from "@components/auth/card-wrapper";
-import { FormError } from "@components/pub/form-error";
+import { FormError } from "@components/auth/form-error";
 import { login } from "@lib/actions/auth/login";
 import { resolve } from "path";
 import { redirect } from "next/navigation";

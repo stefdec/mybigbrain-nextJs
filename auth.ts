@@ -3,7 +3,7 @@ import { ZodError } from "zod"
 import Credentials from "next-auth/providers/credentials"
 import { signInSchema } from "@lib/definitions"
 import Google from "next-auth/providers/google"
-import { getUserProfile} from "@lib/actions/users"
+import { getUserProfile} from "@lib/actions/users/users"
 import { verifyUser } from "@lib/actions/auth/login"
 import { registerUserFromProvider } from "@lib/actions/auth/register"
 

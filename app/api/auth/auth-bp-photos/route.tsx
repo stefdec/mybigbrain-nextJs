@@ -3,11 +3,7 @@ import connection from '@config/db';
 import { RowDataPacket } from 'mysql2/promise';
 
 import crypto from 'crypto';
-
-type UserTokens = {
-  access_token: string;
-  refresh_token: string;
-};
+import { UserTokens } from '@schemas/user-tokens';
 
 
 // Encrypt a token using the AES key

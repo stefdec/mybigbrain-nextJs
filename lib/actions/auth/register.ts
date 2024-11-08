@@ -5,16 +5,9 @@ import { ResultSetHeader } from 'mysql2/promise';
 import * as z from 'zod';
 import { RegisterSchema } from '@schemas';
 import { NextResponse } from 'next/server';
-
-type User = {
-    id: number;
-    userId: number;
-    name: string;
-    email: string;
-    picture: string;
-    lastName: string;
-    bio: string;
-  };
+import argon2 from 'argon2';
+import { signIn } from '@auth';
+import { User } from '@schemas/user';
 
 export const registerUser = async (values:z.infer<typeof RegisterSchema>) => {
     //Validate the fields
@@ -42,14 +35,22 @@ export const registerUser = async (values:z.infer<typeof RegisterSchema>) => {
 
     try {
         await conn.query('INSERT INTO user (first_name, last_name, email, password) VALUES (?, ?, ?, ?)', [firstName, lastName, email, hashedPassword]);
-        conn.release();
+        console.log("User registered successfully");
+
+        //Now we log the user in and create the session
+        await signIn("credentials", {
+            redirect: false,
+            callbackUrl: "/chatbot",
+            email,
+            password,
+        });
+
         return {success: "User registered successfully"};
     } catch (error) {
         console.error(error);
         return {error: "Something went wrong..."};
     } finally {
         conn.release();
-        return {success: "User registered successfully"};
     }
 };
 
@@ -61,7 +62,6 @@ export const registerUserFromProvider = async (user: User) => {
             const result = await conn.query<ResultSetHeader>('INSERT INTO user (first_name, email, profile_pic) VALUES (?, ?, ?, ?, ?)', [user.name, user.email, user.picture]);
             //get the id of the newly created user
             const userId = result[0].insertId;
-            conn.release();
             return NextResponse.json({ userId });
         } catch (error) {
             console.error(error);
@@ -71,22 +71,20 @@ export const registerUserFromProvider = async (user: User) => {
     }
 }
 
-// async function _hashPassword(password: string): Promise<string> {
-//     bcrypt.genSalt(10, function(saltError: Error | undefined, salt: string) {
-//         if (saltError) {
-//             console.error(saltError);
-//             return '';
-//         }
-//         bcrypt.hash(password, salt, function(saltError: Error | undefined, hash: string) {
-//             if (saltError) {
-//                 console.error(saltError);
-//                 return '';
-//             }
-//             return hash;
-//         });
-//     });
-//     return '';
-// }
+async function _hashPassword(password: string): Promise<string> {
+    try {
+        const hashedPassword = await argon2.hash(password, {
+            type: argon2.argon2id,
+            memoryCost: 2**16,
+            timeCost: 5,
+            parallelism: 2
+        });
+        return hashedPassword;
+    } catch (error) {
+        console.error(error);
+    }
+    return '';
+}
     
 
 async function _verifiyIfUserExists(email: string): Promise<boolean> {
@@ -96,7 +94,6 @@ async function _verifiyIfUserExists(email: string): Promise<boolean> {
       const [rows] = await conn.query<User[] & RowDataPacket[]>('SELECT id FROM user WHERE email = ?', [email]);
   
       if (rows.length > 0) {
-        conn.release();
         return true;
       }
       return false;

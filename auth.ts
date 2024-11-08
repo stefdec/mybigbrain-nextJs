@@ -3,7 +3,8 @@ import { ZodError } from "zod"
 import Credentials from "next-auth/providers/credentials"
 import { signInSchema } from "@lib/definitions"
 import Google from "next-auth/providers/google"
-import { getUserProfile, verifyUser} from "@lib/actions/users"
+import { getUserProfile} from "@lib/actions/users"
+import { verifyUser } from "@lib/actions/auth/login"
 import { registerUserFromProvider } from "@lib/actions/auth/register"
 
  
@@ -56,13 +57,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       
           // Fetch user information from your API
           const response = await verifyUser(email, password);
-          if (!response.ok) {
-            console.error("Failed to fetch user data: ", response.statusText);
+          if (!response) {
+            console.error("Wrong credentials");
             return null;
           }
       
-          const userInfo = await response.json();
-          console.log("userInfo", userInfo);
+          const userInfoData = await getUserProfile(email)
+          const userInfo = userInfoData ? await userInfoData.json() : null;
+          //console.log("userInfo", userInfo);
       
           if (userInfo) {
             user = {

@@ -64,6 +64,7 @@ export const LoginForm = () => {
             backButtonLabel="Don't have an account?"
             backButtonHref="/auth/register"
             showSocials={true}
+            socialsLabel="Sign in with Google"
         >
 
             <Form {...form}>

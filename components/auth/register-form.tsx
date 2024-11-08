@@ -43,22 +43,20 @@ export const RegisterForm = () => {
     const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
         setError('');
         setSuccess('');
-
-        startTransition( async () => {
-            await registerUser(values)
-            .then((result) => {
+    
+        startTransition(async () => {
+            const result = await registerUser(values);
+    
+            if (result.error) {
                 setError(result.error);
+            } else if (result.success) {
                 setSuccess(result.success);
-            });
-
-            if (success) {
+                // Redirect directly since you know it's successful
                 redirect("/chatbot");
             }
+    
         });
-        
-        
-
-    }
+    };
 
     return (
         <CardWrapper
@@ -66,6 +64,7 @@ export const RegisterForm = () => {
             backButtonLabel="Already have an account?"
             backButtonHref="/auth/login"
             showSocials={true}
+            socialsLabel="Sign up with Google"
         >
 
             <Form {...form}>

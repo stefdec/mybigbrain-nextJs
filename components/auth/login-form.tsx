@@ -43,13 +43,12 @@ export const LoginForm = () => {
         setSuccess('');
 
         startTransition( async () => {
-            await login(values)
-            .then((result) => {
+            const result = await login(values)
+            if (result.error) {
                 setError(result.error);
+            } else if (result.success) {
                 setSuccess(result.success);
-            });
-
-            if (success) {
+                // Redirect directly since you know it's successful
                 redirect("/chatbot");
             }
         });

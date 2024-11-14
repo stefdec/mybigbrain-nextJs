@@ -21,14 +21,11 @@ import { Button } from "@components/ui/button";
 import { CardWrapper } from "@components/auth/card-wrapper";
 import { FormError } from "@components/auth/form-error";
 import { login } from "@lib/actions/auth/login";
-import { resolve } from "path";
 import { redirect } from "next/navigation";
 
 export const LoginForm = () => {
     const [error, setError] = useState<string | undefined>("");
-    const [success, setSuccess] = useState<string | undefined>("");
     const [isPending, startTransition] = useTransition();
-
 
     const form = useForm<z.infer<typeof LoginSchema>>({
         resolver: zodResolver(LoginSchema),
@@ -40,14 +37,12 @@ export const LoginForm = () => {
 
     const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
         setError('');
-        setSuccess('');
 
         startTransition( async () => {
             const result = await login(values)
             if (result.error) {
                 setError(result.error);
             } else if (result.success) {
-                setSuccess(result.success);
                 // Redirect directly since you know it's successful
                 redirect("/chatbot");
             }

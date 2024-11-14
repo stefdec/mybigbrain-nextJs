@@ -25,7 +25,6 @@ import { redirect } from "next/navigation";
 
 export const RegisterForm = () => {
     const [error, setError] = useState<string | undefined>("");
-    const [success, setSuccess] = useState<string | undefined>("");
     const [isPending, startTransition] = useTransition();
 
 
@@ -41,7 +40,6 @@ export const RegisterForm = () => {
 
     const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
         setError('');
-        setSuccess('');
     
         startTransition(async () => {
             const result = await registerUser(values);
@@ -49,7 +47,6 @@ export const RegisterForm = () => {
             if (result.error) {
                 setError(result.error);
             } else if (result.success) {
-                setSuccess(result.success);
                 // Redirect directly since you know it's successful
                 redirect("/chatbot");
             }

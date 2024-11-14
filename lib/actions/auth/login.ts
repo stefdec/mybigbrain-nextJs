@@ -6,7 +6,6 @@ import { LoginSchema } from '@schemas';
 import { AuthError } from "next-auth";
 import connection from '@config/db';
 import { RowDataPacket } from 'mysql2/promise';
-import { User } from '@schemas/user';
 import argon2 from 'argon2';
 
 export const login = async (values:z.infer<typeof LoginSchema>)=>{

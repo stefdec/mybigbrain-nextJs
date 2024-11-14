@@ -1,23 +1,8 @@
 import { NextResponse } from 'next/server';
 import connection from '@config/db';
 import { RowDataPacket } from 'mysql2/promise';
-
-import crypto from 'crypto';
 import { UserTokens } from '@schemas/user-tokens';
 
-
-// Encrypt a token using the AES key
-function encryptTokenWithAES(aesKey: Buffer, token: string): { ciphertext: string; iv: string } {
-  const iv = crypto.randomBytes(16); // Initialization vector
-  const cipher = crypto.createCipheriv('aes-256-cbc', aesKey, iv);
-  let encrypted = cipher.update(token, 'utf8', 'base64');
-  encrypted += cipher.final('base64');
-
-  return {
-    ciphertext: encrypted,
-    iv: iv.toString('base64')
-  };
-}
 
 export async function GET(req: Request) {
   const url = new URL(req.url);

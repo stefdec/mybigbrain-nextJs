@@ -8,7 +8,7 @@ interface BackButtonProps {
     href: string;
 }
 
-export const BackButton = ({label, href}: {label: string, href: string}) => {
+export const BackButton = ({label, href}: BackButtonProps) => {
     return(
         <Button
             variant={"link"}

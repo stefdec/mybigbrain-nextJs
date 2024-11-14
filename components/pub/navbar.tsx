@@ -4,7 +4,7 @@ import {auth} from "@/auth";
 import { signOut } from "@auth"
 
 import { UserButtonsNonLogged } from "@components/pub/user-buttons-non-logged";
-import { UserButtonsLogged } from "@components/pub/user-buttons-logged";
+//import { UserButtonsLogged } from "@components/pub/user-buttons-logged";
 
 const Navbar = async () => {
 

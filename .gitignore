@@ -39,4 +39,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-get-tokens.ts
+# ignore the generated tokens file
+lib/actions/tokens/get-tokens.ts

@@ -3,7 +3,6 @@ import React from 'react'
 import { Switch } from "@/components/ui/switch"
 import { Button } from '@components/ui/button';
 import { getProcesses, pullData } from "@lib/actions/apis/api-processes"
-import {getTokens} from "@lib/actions/tokens/get-tokens"
 import { redirect } from 'next/navigation'
 import Image from 'next/image';
 
@@ -36,14 +35,6 @@ const page = async () => {
 
   return (
     <main className='p-8'>
-      <form action={async () => {
-            "use server"
-            await getTokens()
-          }
-        }
-      >
-        <Button type='submit'>click</Button>
-      </form>
       <form action={async (formData: FormData) => {
             "use server"
             const url = await pullData(formData)

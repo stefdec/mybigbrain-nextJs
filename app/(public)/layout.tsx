@@ -21,7 +21,7 @@ export default function RootLayout({
     <SessionProvider>
       <html lang="en">
         <body
-          className={`${inter.className} antialiased flex items-start w-screen h-screen  text-slate-900 flex-col align-middle justify-cen`}
+          className={`${inter.className} antialiased flex flex-col text-slate-900 cross-lines-bg`}
         >
           <Navbar />
           {children}

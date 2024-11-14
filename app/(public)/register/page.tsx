@@ -6,7 +6,7 @@ import {RegisterForm} from '@components/auth/register-form'
 const RegsiterPage = async() => {
 
   return (
-    <main className='flex flex-col items-center justify-items-center p-24 w-screen'>
+    <main className='flex flex-col items-center justify-items-center p-10 w-screen'>
       <RegisterForm />
     </main>
   )

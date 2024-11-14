@@ -19,6 +19,10 @@
   .mb-item-active{
     @apply: bg-gradient-to-r from-[#6BD9FB] via-[#6391FF] to-[#7D50FF];
   }
+
+  .button-shadow{
+    @apply shadow-[-10px_0_15px_1px_rgba(107,217,251,0.3),0_0_15px_1px_rgba(99,145,255,0.3),10px_0_15px_1px_rgba(125,80,255,0.3)];
+  }
 }
 
 body {
@@ -27,7 +31,37 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.main-container{
+.cross-lines-bg{
+  background-color: white; /* Base background color */
+  background-image: 
+    radial-gradient(ellipse 70% 60% at center, transparent 50%, rgba(255, 255, 255, 0.8) 80%),
+    linear-gradient(to right, rgba(109, 220, 255, 0.15), rgba(127, 96, 249, 0.15)), /* Radial color gradient */
+    linear-gradient(to right, rgba(109, 145, 255, 0.1) 1px, transparent 1px), /* Vertical grid lines */
+    linear-gradient(to bottom, rgba(99, 145, 255, 0.1) 1px, transparent 1px); /* Horizontal grid lines */
+  background-size: cover, cover, 40px 40px, 40px 40px; /* Size for each background layer */
+}
+
+.gradient-border-mask {
+  display: flow-root;
+  position: relative;
+}
+
+.gradient-border-mask::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: linear-gradient(90deg, rgba(107, 217, 251, 1), rgba(99, 145, 255, 1), rgba(125, 80, 255, 1)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+}
+
+.main-container{ 
   display: flex;
   flex-direction: row;
   justify-content: flex-start;

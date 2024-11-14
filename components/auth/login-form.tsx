@@ -111,7 +111,7 @@ export const LoginForm = () => {
                         <FormError message={error} />
                         <Button 
                             type="submit" 
-                            className="w-full shadow-[-10px_0_15px_1px_rgba(107,217,251,0.3),0_0_15px_1px_rgba(99,145,255,0.3),10px_0_15px_1px_rgba(125,80,255,0.3)]"
+                            className="w-full button-shadow"
                             disabled={isPending}
                         >
                             Login

@@ -38,7 +38,7 @@ const Navbar = async () => {
       
       
       { session ? (
-      <div className="col-span-3 flex items-end justify-end border">
+      <div className="col-span-3 flex items-end justify-end gap-5">
         <Image src={profilePicture} width={50} height={50} alt="bell" className=" rounded-full w-10 h-10" />
         <Button variant="outline">
           <a href="/chatbot">Dashboard</a>

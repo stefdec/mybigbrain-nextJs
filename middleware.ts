@@ -10,5 +10,8 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/dashboardxx/:path*"], // Protects only the `/dashboard` folder and any sub-paths
+  //runtime: "nodejs",
+  //matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: ["/dashboard/:path*"], // Protects only the `/dashboard` folder and any sub-paths
+  
 };

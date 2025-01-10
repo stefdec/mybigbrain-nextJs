@@ -93,7 +93,7 @@ const contacts = async () => {
                   className="rounded-xl border" />
                 </div>
                 <div className='flex flex-col gap-4 justify-between'>
-                  <div className='border-s-2 border-black ps-2 font-bold text-[20px]'>Who's this?</div>
+                  <div className='border-s-2 border-black ps-2 font-bold text-[20px]'>Who&apos;s this?</div>
                   <div className='flex flex-row items-center gap-2 pb-4 border-b-2'>
                     <HiOutlineMail
                       className='text-gray-400 w-[18px] h-[18px]'

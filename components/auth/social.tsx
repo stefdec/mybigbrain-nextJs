@@ -3,7 +3,6 @@
 import { signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
 import { Button } from "@components/ui/button";
-import { on } from "events";
 
 interface SocialProps {
     buttonLabel: string;

@@ -11,7 +11,9 @@ import { Button } from '@/components/ui/button'
 }
 
 const PhotoBar = ({ numPhotos, userId, photos }: PhotoBarProps) => {
-    
+  
+  console.log(userId);
+
   return (
     <div className="flex flex-row justify-between items-center p-6 border rounded-xl w-full">
         <div className="flex flex-col gap-3">
@@ -23,7 +25,7 @@ const PhotoBar = ({ numPhotos, userId, photos }: PhotoBarProps) => {
           photos.map((photo, index) => (
             <Image
               key={index}
-              src={photo.imageUrl}
+              src={photo}
               alt={`Unlabeled contact ${index + 1}`}
               width={50}
               height={50}

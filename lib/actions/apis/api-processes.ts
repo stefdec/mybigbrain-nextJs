@@ -124,13 +124,15 @@ export const saveTokens = async (userId: string, providerId: string, encryptedAc
         INSERT INTO user_tokens (user_id, provider_id, access_token, refresh_token)
         VALUES (?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
+        access_token = VALUES(access_token),
+        refresh_token = VALUES(refresh_token);
         `;
     
     await conn.query(query, [userId, providerId, encryptedAccessToken, encryptedRefreshToken]);
     return true;
   } catch (error) {
-    console.error('Error saving tokens:', error);
-    return false;
+      console.error('Error saving tokens:', error);
+      return false;
   } finally {
     conn.release();
   }

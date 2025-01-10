@@ -31,6 +31,9 @@ export async function GET(req: NextRequest) {
         const accessToken = tokens.access_token;
         const refreshToken = tokens.refresh_token;
 
+        console.log('accessToken:', accessToken);
+        console.log('refreshToken:', refreshToken);
+
         if (!accessToken || !refreshToken) {
             throw new Error('Failed to retrieve tokens. Access or Refresh token is missing.');
         }
@@ -47,6 +50,10 @@ export async function GET(req: NextRequest) {
         const userId = state?.user_id;
         const providerId = state?.provider_id;
         const scopes = state?.scopes;
+
+        if (!userId || !providerId) {
+            throw new Error('User or Provider ID is missing.');
+        }
 
         if (!encryptedAccessToken || !encryptedRefreshToken) {
             throw new Error('Failed to encrypt tokens.');

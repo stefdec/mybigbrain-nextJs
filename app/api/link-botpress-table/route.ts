@@ -62,8 +62,8 @@ const saveTableId = async (userId: string, userEmail: string, tableId: string): 
       await conn.query(query, [userId, userEmail, tableId]);
       return true;
     } catch (error) {
-      console.error('Error saving tokens:', error);
-      return false;
+        console.error('Error saving botpress table:', error);
+        return false;
     } finally {
       conn.release();
     }

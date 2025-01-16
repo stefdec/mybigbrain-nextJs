@@ -24,6 +24,7 @@ export const getFaces = async () => {
   
   const currentUserId = session.user?.userId;
 
+
   try {
     const [faces] =  await conn.query<Face[] & RowDataPacket[]>('SELECT id, media_id, image_path FROM rekognition WHERE image_path IS NOT NULL AND user_id = ? AND identified=?', [currentUserId, 0]);
     const facesData = faces.map((face) => {

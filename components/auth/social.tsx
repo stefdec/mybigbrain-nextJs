@@ -10,6 +10,7 @@ interface SocialProps {
 
 export const Social = ({buttonLabel}: SocialProps) => {
     const onClick = (provider: "google") => {
+        console.log("Sign-in initiated with provider:", provider);
         signIn(provider, { callbackUrl: "/chatbot" });
     }
     return (

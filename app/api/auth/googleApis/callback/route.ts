@@ -8,7 +8,7 @@ import { google } from 'googleapis';
 const oauth2Client = new google.auth.OAuth2(
     process.env.AUTH_GOOGLE_ID,
     process.env.AUTH_GOOGLE_SECRET,
-    `${process.env.NEXT_BASE_URL}/api/auth/google/callback`
+    `${process.env.NEXTAUTH_URL}/api/auth/googleApis/callback`
 );
 
 export async function GET(req: NextRequest) {
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     //console.log('code:', code);
     //console.log('state:', state);
 
-    if(!code) return NextResponse.redirect(`${process.env.NEXT_BASE_URL}/?oAuthError=1`);
+    if(!code) return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/?oAuthError=1`);
 
     try {
         // Exchange authorization code for access and refresh tokens
@@ -71,14 +71,14 @@ export async function GET(req: NextRequest) {
         }
 
         // Redirect to a success page
-        return NextResponse.redirect(`${process.env.NEXT_BASE_URL}/apps`);
+        return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/apps`);
 
         //return NextResponse.json({ accessToken, refreshToken, encryptedAccessToken, encryptedRefreshToken });
 
     } catch (error) {
         console.error('Error during Google authentication callback:', error);
         //res.status(500).json({ error: 'Failed to authenticate with Google', details: error.message });
-        NextResponse.redirect(`${process.env.NEXT_BASE_URL}/?oAuthError=1`)
+        NextResponse.redirect(`${process.env.NEXTAUTH_URL}/?oAuthError=1`)
     }
   
 }

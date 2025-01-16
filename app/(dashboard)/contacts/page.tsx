@@ -86,7 +86,7 @@ const contacts = async () => {
               <div className='flex flex-row gap-x-4'>
                 <div>
                 <Image 
-                  src="https://bb-faces-test-b.s3.us-east-1.amazonaws.com/google_photos_106117210796623775541/rekognition/25414e35-9d4d-4edd-a24d-c157bec29f80.jpg"
+                  src={faces[0].image_path}
                   alt={`Unlabeled contact`} 
                   width={248} 
                   height={248} 
@@ -126,17 +126,20 @@ const contacts = async () => {
               </div>
               <div>other pictures</div>
             </div>
-            <div className='flex flex-row gap-3 flex-wrap items-center justify-center'>
-            {faces.slice(0, 12).map((photo: Faces, index: number) => (
-              <Image 
-                key={index} 
-                src={photo.image_path} 
-                alt={`Unlabeled contact ${index + 1}`} 
-                width={124} 
-                height={124} 
-                className="rounded-xl border" />
-            ))}
+
+            <div className="grid grid-cols-4 gap-3">
+              {faces.slice(1, 13).map((photo: Faces, index: number) => (
+                <Image 
+                  key={index} 
+                  src={photo.image_path} 
+                  alt={`Unlabeled contact ${index + 1}`} 
+                  width={124} 
+                  height={124} 
+                  className="rounded-xl border w-full"
+                />
+              ))}
             </div>
+            
           </DialogContent>
         </Dialog>
         </div>

@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: process.env.AWS_PHOTO_BUCKET_URL || 'bb-faces-test-b.s3.us-east-1.amazonaws.com',
+        hostname: 'bigbrain-users-faces.s3.eu-west-2.amazonaws.com',  // FIXED
       },
     ],
   },
@@ -22,6 +22,5 @@ const nextConfig: NextConfig = {
     return config;
   },
 };
-
 
 export default nextConfig;

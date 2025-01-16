@@ -10,7 +10,7 @@ import { google } from 'googleapis';
 const oauth2Client = new google.auth.OAuth2(
     process.env.AUTH_GOOGLE_ID,
     process.env.AUTH_GOOGLE_SECRET,
-    `${process.env.NEXT_BASE_URL}/api/auth/google/callback`
+    `${process.env.NEXTAUTH_URL}/api/auth/googleApis/callback`
 );
 
 type Provider = {
@@ -105,6 +105,8 @@ export const pullData = async (formData: FormData) => {
     };
 
     console.log(stateObject);
+
+
     // Generate the Google OAuth URL with dynamic scopes
     const url = oauth2Client.generateAuthUrl({
       access_type: 'offline', // 'offline' to get a refresh token
@@ -112,6 +114,8 @@ export const pullData = async (formData: FormData) => {
       prompt: 'consent', // Force consent screen every time
       state: JSON.stringify(stateObject), // Attach user_id and provider_id to state to identify them later in the callback
     });
+
+    console.log(`url is ${url}`);
 
     //return the url to the client
     return url;

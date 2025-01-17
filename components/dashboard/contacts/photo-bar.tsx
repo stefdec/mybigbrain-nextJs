@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { FiUsers } from "react-icons/fi";
 import { FaTimes } from "react-icons/fa";
 import { FaRegUser } from "react-icons/fa";
+import { LiaUserTagSolid } from "react-icons/lia";
+
 
 import { saveContact, deleteFace } from "@/lib/actions/contacts/face-identifier";
 
@@ -125,7 +127,7 @@ const Photobar: React.FC<Props> = ({ faces, numPhotos }) => {
                 <form action={handleSubmit} className="flex flex-col justify-between">
                   <input type="hidden" name="pictureId" value={selectedFace.id} />
                   
-                  <div className='flex flex-col gap-3 justify-between h-[100%]'>
+                  <div className='flex flex-col gap-1 justify-between h-[100%]'>
                     <div className='border-s-2 border-black ps-2 font-bold text-[20px]'>Who&apos;s this?</div>
                     
                     <div className='flex flex-row items-center gap-2 pb-4 border-b-2'>
@@ -145,6 +147,16 @@ const Photobar: React.FC<Props> = ({ faces, numPhotos }) => {
                         name="lastName" 
                         className="border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-transparent p-1" 
                         placeholder="Last Name" 
+                      />
+                    </div>
+
+                    <div className='flex flex-row items-center gap-2 pb-4 '>
+                      <LiaUserTagSolid className='text-gray-400 w-[18px] h-[18px]' />
+                      <input 
+                        type="text" 
+                        name="nickName" 
+                        className="border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-transparent p-1" 
+                        placeholder="Nickname" 
                       />
                     </div>
                     

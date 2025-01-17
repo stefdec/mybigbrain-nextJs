@@ -47,7 +47,7 @@ async function updateFaceName(faceId: number, name: string) {
     }
 }
 
-async function createContact(firstName:string, lastName:string, pictureId:number) {
+async function createContact(firstName:string, lastName:string, nickName:string, pictureId:number) {
 
     const email = `${await generateRndString()}@noemailprovided.com`;
 
@@ -59,13 +59,13 @@ async function createContact(firstName:string, lastName:string, pictureId:number
     const conn = await connection.getConnection();
     try {
       const query = `
-            INSERT INTO contact (user_id, first_name, last_name, email, picture)
-            SELECT ?, ?, ?, ?, r.image_path
+            INSERT INTO contact (user_id, first_name, last_name, nickname, email, picture)
+            SELECT ?, ?, ?, ?, ?, r.image_path
             FROM rekognition r
             WHERE r.id = ?;
           `;
       
-      await conn.query(query, [currentUserId, firstName, lastName, email, pictureId]);
+      await conn.query(query, [currentUserId, firstName, lastName, nickName, email, pictureId]);
       return { success: true, message: "Contact created successfully!" };
     } catch (error) {
         return { success: false, message: "Error creating contact", error };
@@ -197,15 +197,22 @@ async function deleteRekognitionEntries(faceId: number){
 export async function saveContact(formData: FormData) {
     const firstName = formData.get("firstName") as string;
     const lastName = formData.get("lastName") as string;
+    const nickName = formData.get("nickName") as string;
 
     //PictureId is the column "id" of the face in the rekognition table
     const pictureId = formData.get("pictureId") as string;
 
     const fullName = `${firstName} ${lastName}`;
 
+    let embeddingName;
+    if (!nickName) {
+        embeddingName = `${fullName}`;
+    } else {
+        embeddingName = `${fullName}, Nickname: ${nickName}`;
+    }
 
     // Simulate saving to a database
-    console.log("Saving contact:", { firstName, lastName, pictureId });
+    console.log("Saving contact:", { firstName, lastName, nickName, pictureId });
 
     const updatFaceName = await updateFaceName(parseInt(pictureId), fullName);
     if (!updatFaceName.success) {
@@ -213,13 +220,13 @@ export async function saveContact(formData: FormData) {
         return { success: false, message: "Error updating face name" };
     }
 
-    const createCtc = await createContact(firstName, lastName, parseInt(pictureId));
+    const createCtc = await createContact(firstName, lastName, nickName, parseInt(pictureId));
     if (!createCtc.success) {
         console.log("Error creating contact:", createCtc.error);
         return { success: false, message: "Error creating contact" };
     }
 
-    await updateEmbedding(parseInt(pictureId), fullName);
+    await updateEmbedding(parseInt(pictureId), embeddingName);
 
     const updateFace = await updateFaceAsIdentified(parseInt(pictureId));
     if (!updateFace.success) {

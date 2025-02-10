@@ -4,25 +4,27 @@ import {auth} from "@auth";
 import { parseServerActionRepsonse } from "@lib/utils";
 import connection from '@config/db';
 import { RowDataPacket } from 'mysql2/promise';
-import { createClient } from '@supabase/supabase-js'
-import { OpenAI } from 'openai';
+import { Supabase } from "@config/supabase";
+// import { OpenAI } from 'openai';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_KEY = process.env.SUPABASE_KEY || '';
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = Supabase;
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
+// const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+// const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 type RekognitionMedia = {
     id: number;
     media_id: string;
   };
 
-type VisionTagsRow = {
-    vision_tags: string;
-};
+// type VisionTagsRow = {
+//     vision_tags: string;
+// };
+
+// type PeopleRow = {
+//     people: string[];
+// };
 
 async function updateFaceName(faceId: number, name: string) {
     /*
@@ -74,21 +76,19 @@ async function createContact(firstName:string, lastName:string, nickName:string,
     }  
 }
 
-async function updateEmbedding(faceId: number, name: string) {
-    /* This function will pull all the entries matching the faceId & the vision_tags from supabase, update the string, create a new embedding with openAI and update the
-    entry in supabase with the new vlalues */
-
+async function updateGooglePhotosNames(faceId: number, name: string) {
     const conn = await connection.getConnection();
 
     // get all the media_ids for the faceId in rekognition
     const [mediaIds] =  await conn.query<RekognitionMedia[] & RowDataPacket[]>('SELECT id, media_id FROM rekognition WHERE matching_face_id = (SELECT matching_face_id FROM rekognition WHERE id=?)', [faceId]);
 
-    mediaIds.forEach(async (media) => {
+    // loop through all the media_ids and update the people array in the google_photos table
+    for (const media of mediaIds) {
 
-        //Step 1 pull the vision_tags from supabase
+        // get the people array from the google_photos table
         const {data, error} = await supabase
             .from('google_photos')
-            .select('vision_tags')
+            .select('people')
             .eq('media_id', media.media_id);
 
         if (error) {
@@ -96,55 +96,108 @@ async function updateEmbedding(faceId: number, name: string) {
             return;
         }
 
-        data.forEach(async (row: VisionTagsRow) => {
+        if (!data || data.length === 0) {
+            console.warn('No data found for media_id:', media.media_id);
+            continue;
+        }
 
-            console.log(`Updating vision_tags for media_id: ${media.media_id}`);
+        // loop through all the rows and update the people array
+        for (const row of data) {
+            const currentPeople: string[] = Array.isArray(row.people) ? row.people : [];
 
-            // Step 2 modify the vision_tags with the new name
-            const visionTagObject = JSON.stringify(row.vision_tags)
-            const visionTag = JSON.parse(visionTagObject);
+            if (!currentPeople.includes(name)) {
+                const updatedPeople = [...currentPeople, name];
 
-            if(!visionTag.people) {
-                // if there are no people in the vision_tags, add the new name
-                visionTag.people = [name];
-            } else if (Array.isArray(visionTag.people)) {
-                // if there are people in the vision_tags, check if the new name is already in the list and add it if not
-                if (!visionTag.people.includes(name)) {
-                    visionTag.people.push(name);
+                //update the people array in the google_photos table
+                const {error: uodateError} = await supabase
+                    .from('google_photos')
+                    .update({ people: updatedPeople })
+                    .eq('media_id', media.media_id);
+
+                if (uodateError) {
+                    console.error('Error updating people:', uodateError.message);
+                } else {
+                    console.log(`Updated people for media_id: ${media.media_id} with name: ${name}`);
                 }
             } else {
-                // if there is a single person in the vision_tags, create a new array with the new name and the existing name
-                visionTag.people = [visionTag.people, name];
+                console.log(`Name: ${name} already exists in people array for media_id: ${media.media_id}`);
             }
 
-            const visionTagString = JSON.stringify(visionTag);
-
-            console.log(`Updated vision_tags: ${visionTagString}`);
-
-            // Step 3 create a new embedding with openAI
-            const embeddingResponse = await openai.embeddings.create({
-                model: "text-embedding-3-small",
-                input: visionTagString,
-                encoding_format: "float",
-              });
-              
-            // Extract only the embedding vector
-            const embeddingVector = embeddingResponse.data[0].embedding;
-
-            // Step 4 update the entry in supabase with the new values
-            const {error} = await supabase
-                .from('google_photos')
-                .update({ vision_tags: visionTag, embedding: embeddingVector})
-                .eq('media_id', media.media_id);
-            
-            if (error) {
-                console.error('Error updating vision_tags:', error.message);
-                return;
-            }
-            
-        });
-    });
+        }
+    }
 }
+
+// async function updateEmbedding(faceId: number, name: string) {
+//     /* This function will pull all the entries matching the faceId & the vision_tags from supabase, update the string, create a new embedding with openAI and update the
+//     entry in supabase with the new vlalues */
+
+//     const conn = await connection.getConnection();
+
+//     // get all the media_ids for the faceId in rekognition
+//     const [mediaIds] =  await conn.query<RekognitionMedia[] & RowDataPacket[]>('SELECT id, media_id FROM rekognition WHERE matching_face_id = (SELECT matching_face_id FROM rekognition WHERE id=?)', [faceId]);
+
+//     mediaIds.forEach(async (media) => {
+
+//         //Step 1 pull the vision_tags from supabase
+//         const {data, error} = await supabase
+//             .from('google_photos')
+//             .select('vision_tags')
+//             .eq('media_id', media.media_id);
+
+//         if (error) {
+//             console.error('Error fetching vision_tags:', error.message);
+//             return;
+//         }
+
+//         data.forEach(async (row: VisionTagsRow) => {
+
+//             console.log(`Updating vision_tags for media_id: ${media.media_id}`);
+
+//             // Step 2 modify the vision_tags with the new name
+//             const visionTagObject = JSON.stringify(row.vision_tags)
+//             const visionTag = JSON.parse(visionTagObject);
+
+//             if(!visionTag.people) {
+//                 // if there are no people in the vision_tags, add the new name
+//                 visionTag.people = [name];
+//             } else if (Array.isArray(visionTag.people)) {
+//                 // if there are people in the vision_tags, check if the new name is already in the list and add it if not
+//                 if (!visionTag.people.includes(name)) {
+//                     visionTag.people.push(name);
+//                 }
+//             } else {
+//                 // if there is a single person in the vision_tags, create a new array with the new name and the existing name
+//                 visionTag.people = [visionTag.people, name];
+//             }
+
+//             const visionTagString = JSON.stringify(visionTag);
+
+//             console.log(`Updated vision_tags: ${visionTagString}`);
+
+//             // Step 3 create a new embedding with openAI
+//             const embeddingResponse = await openai.embeddings.create({
+//                 model: "text-embedding-3-small",
+//                 input: visionTagString,
+//                 encoding_format: "float",
+//               });
+              
+//             // Extract only the embedding vector
+//             const embeddingVector = embeddingResponse.data[0].embedding;
+
+//             // Step 4 update the entry in supabase with the new values
+//             const {error} = await supabase
+//                 .from('google_photos')
+//                 .update({ vision_tags: visionTag, embedding: embeddingVector})
+//                 .eq('media_id', media.media_id);
+            
+//             if (error) {
+//                 console.error('Error updating vision_tags:', error.message);
+//                 return;
+//             }
+            
+//         });
+//     });
+// }
 
 async function generateRndString() {
     return Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
@@ -226,7 +279,7 @@ export async function saveContact(formData: FormData) {
         return { success: false, message: "Error creating contact" };
     }
 
-    await updateEmbedding(parseInt(pictureId), embeddingName);
+    await updateGooglePhotosNames(parseInt(pictureId), embeddingName);
 
     const updateFace = await updateFaceAsIdentified(parseInt(pictureId));
     if (!updateFace.success) {

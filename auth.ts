@@ -1,13 +1,12 @@
 import NextAuth from "next-auth"
-import { ZodError } from "zod"
-import Credentials from "next-auth/providers/credentials"
-import { signInSchema } from "@lib/definitions"
-import Google from "next-auth/providers/google"
-import { getUserProfile} from "@lib/actions/users/users"
-import { verifyUser } from "@lib/actions/auth/login"
-import { registerUserFromProvider } from "@lib/actions/auth/register"
+import { ZodError } from "zod";
+import Credentials from "next-auth/providers/credentials";
+import { signInSchema } from "@lib/definitions";
+import Google from "next-auth/providers/google";
+import { getUserProfile } from "@lib/actions/users/users";
+import { verifyUser } from "@lib/actions/auth/login";
+import { registerUserFromProvider } from "@lib/actions/auth/register";
 
- 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Google({
@@ -15,9 +14,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       profile: async (profile) => {
         let user = null;
-        //fetch data from /api/users with the email
-        const response = await getUserProfile(profile.email)
-        const additionalData = await response.json()
+        // Fetch data from /api/users with the email
+        const response = await getUserProfile(profile.email);
+        const additionalData = await response.json();
 
         user = {
           id: profile.sub, // Google's user ID
@@ -27,23 +26,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           picture: additionalData.profile_pic ?? profile.picture,
           lastName: additionalData.last_name ?? null,
           bio: additionalData.bio ?? null,
-        }
+        };
 
-        if(!additionalData){
-          //The user does not exist in the database
-          //Create a new user
-          const response = await registerUserFromProvider(user)
+        if (!additionalData) {
+          // The user does not exist in the database - create a new user
+          const response = await registerUserFromProvider(user);
           const newUser = response ? await response.json() : null;
 
-          user.id = newUser.id
+          user.id = newUser.id;
         }
 
-        return user
+        return user;
       },
     }),
     Credentials({
-      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-      // e.g. domain, username, password, 2FA token, etc.
       credentials: {
         email: {},
         password: {},
@@ -52,20 +48,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         let user = null;
         try {
           console.log("PRINT credentials", credentials);
-      
+
           const { email, password } = await signInSchema.parseAsync(credentials);
-      
+
           // Fetch user information from your API
           const response = await verifyUser(email, password);
           if (!response) {
             console.error("Wrong credentials");
             return null;
           }
-      
-          const userInfoData = await getUserProfile(email)
+
+          const userInfoData = await getUserProfile(email);
           const userInfo = userInfoData ? await userInfoData.json() : null;
-          //console.log("userInfo", userInfo);
-      
+
           if (userInfo) {
             user = {
               id: userInfo.id,
@@ -79,7 +74,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           } else {
             throw new Error("User not found.");
           }
-      
+
           return user;
         } catch (error) {
           if (error instanceof ZodError) {
@@ -92,28 +87,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  pages
-  : {
+  pages: {
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user } : { token: any, user: any }) {
+    async jwt({ token, user }: { token: any, user: any }) {
       if (user) {
         token.id = user.id;
-        token.userId = user.userId
-        token.profilePic = user.picture || token.picture
-        token.lastName = user.lastName || token.lastName
-        token.userBio = user.bio || token.bio
+        token.userId = user.userId;
+        token.profilePic = user.picture || token.picture;
+        token.lastName = user.lastName || token.lastName;
+        token.userBio = user.bio || token.bio;
       }
       return token;
     },
-    async session({ session, token } : { session: any, token: any }) {
+    async session({ session, token }: { session: any, token: any }) {
       if (token) {
-        session.user.id = token.id
-        session.user.userId = token.userId
-        session.user.profilePic = token.profilePic
-        session.user.lastName = token.lastName
-        session.user.userBio = token.userBio
+        session.user.id = token.id;
+        session.user.userId = token.userId;
+        session.user.profilePic = token.profilePic;
+        session.user.lastName = token.lastName;
+        session.user.userBio = token.userBio;
       }
       return session;
     },
